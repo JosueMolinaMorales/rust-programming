@@ -45,6 +45,10 @@ fn main() {
         .read_line(&mut guess) // Returns 'result' type that is an enum of 'Ok' and 'Err'
         .expect("Failed to read line"); // Handles potential failures
 
+    /*
+        Rust allows us to shadow the previous value of guess with a new one
+        Shadowing lets us reuse the guess variable name rather than forcing us to create two unique variable name
+    */
     let guess: u32 = guess.trim().parse().expect("Please type a number!");
     println!("You guessed: {}", guess);
 
