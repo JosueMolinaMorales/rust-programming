@@ -1,0 +1,14 @@
+# Ignore all
+*
+
+# Unignore all w/ extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+# Ignore Target dir
+target
+
+# Ignore .lock
+*.lock
