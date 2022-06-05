@@ -18,43 +18,55 @@ fn main() {
     */
     let secret_number = rand::thread_rng().gen_range(1..101);
 
-    println!("The secret number is: {}", secret_number);
+    loop {
+        println!("Please input your guess.");
 
-    println!("Please input your guess.");
+        /* 
+            'let' creates a variable. In rust, variables are immutable by default
+            'mut' makes a variable mutable
+            String::new() is a function that returns a new instance of a String
+            '::' in '::new' indeicates that new is an associated function of the String type
+            associated function is a function thats implemented on a type.
+            'new()' creates a new empty string
+        */
+        let mut guess = String::new();
 
-    /* 
-        'let' creates a variable. In rust, variables are immutable by default
-        'mut' makes a variable mutable
-        String::new() is a function that returns a new instance of a String
-        '::' in '::new' indeicates that new is an associated function of the String type
-        associated function is a function thats implemented on a type.
-        'new()' creates a new empty string
-    */
-    let mut guess = String::new();
+        /*
+            if io wasnt importing using 'use std::io', the 'stdin()' could still be used by
+            std::io::stdin()()
+            'stin()' returns an instance of 'std::io::Stdin'
+            'read_line()' reads the users input and appends it to the variable passed in. Not overwritting the
+            content of the variable
+            '&' denotes passing by reference. Variable references are immutable by default.
+            '&mut' makes the variable mutable. '&guess' would be immutable reference
+        */
+        io::stdin()
+            .read_line(&mut guess) // Returns 'result' type that is an enum of 'Ok' and 'Err'
+            .expect("Failed to read line"); // Handles potential failures
 
-    /*
-        if io wasnt importing using 'use std::io', the 'stdin()' could still be used by
-        std::io::stdin()()
-        'stin()' returns an instance of 'std::io::Stdin'
-        'read_line()' reads the users input and appends it to the variable passed in. Not overwritting the
-        content of the variable
-        '&' denotes passing by reference. Variable references are immutable by default.
-        '&mut' makes the variable mutable. '&guess' would be immutable reference
-    */
-    io::stdin()
-        .read_line(&mut guess) // Returns 'result' type that is an enum of 'Ok' and 'Err'
-        .expect("Failed to read line"); // Handles potential failures
+        /*
+            Rust allows us to shadow the previous value of guess with a new one
+            Shadowing lets us reuse the guess variable name rather than forcing us to create two unique variable name
+            'trim()' must be used before converting a string to a number. 
+            'parse()' parses a string to the number typed by ': u32'
+        */
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+        println!("You guessed: {}", guess);
 
-    /*
-        Rust allows us to shadow the previous value of guess with a new one
-        Shadowing lets us reuse the guess variable name rather than forcing us to create two unique variable name
-    */
-    let guess: u32 = guess.trim().parse().expect("Please type a number!");
-    println!("You guessed: {}", guess);
-
-    match guess.cmp(&secret_number) {
-        Ordering::Less => println!("Too small!"),
-        Ordering::Greater => println!("Too big!"),
-        Ordering::Equal => println!("You win!")
+        /*
+            'match' is made up of arms.
+            An arm consists of a pattern to match against, and the code should be run if the value given to match fits arms pattern
+        */
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
+        }
     }
 }
