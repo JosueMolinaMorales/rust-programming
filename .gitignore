@@ -10,5 +10,3 @@
 # Ignore Target dir
 target
 
-# Ignore .lock
-*.lock
