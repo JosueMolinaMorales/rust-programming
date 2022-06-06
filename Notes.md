@@ -56,7 +56,7 @@ let y = y + 1;
 | 32 bit | `i32` | `u32` |
 | 64 bit | `i64` | `u64` |
 | 128 bit | `i128` | `u128` |
-| arch | `isize` | `usize |
+| arch | `isize` | `usize` |
 
 * `isize` and `usize` depends on the architecutre of the computer your programming on. 64 bits if you are on a 64 bit machine, or 32 bit
 
@@ -326,15 +326,15 @@ fn main() {
 
 Rust approach: Memory is managed through a system of ownership with a set of rules that the compiler checks. If any of the rules are violated, the program won't compile.
 
-### Ownership Rules
+#### Ownership Rules
 * Each value in Rust has a variable that's called its *owner*
 * There can only be on owner at a time
 * When the owner goes out of scope, the value will be dropped
 
-### Variable Scope
+#### Variable Scope
 A scope is the rnage whitin a program for which an item is valid
 
-### The String Type
+#### The String Type
 You can create a string from a string literal using the `from` function
 
 ```rust
@@ -346,6 +346,101 @@ let mut s = String::from("Hello");
 s.push_str(", world!"); // push_str() appends a literal to a String
 ```
 The memory is automatically returned once the variable that owns it goes out of scope
+
+When doing the follow snippet:
+```rust
+fn main() {
+    let s1 = String::from("Hello");
+    let s2 = s1;
+
+    println!("{}, World!", s1);
+}
+```
+Both s1 and s2 point to the same string object in memory. When s1 and s2 both go out of scope, the memory could be released twice. 
+
+To avoid this, after the line `let s2 = s1` Rust considers `s1` as no longer valid, to ensure safe memory. Rust doesn't need to free anything when s1 goes out of scope.
+
+Shallow and deep copies are what other langauges would refer to the above example. In Rust, this would be known as a move. `s1` was *moved* to `s2`
+
+Rust will never create "deep" copies of your data. Therefore, any automatic copying can be assumed to be inexpensive in terms of runtime performance
+
+To create a deep copy, use the `clone()` method. 
+
+#### Ownership and Functions
+Passing a variables to a function will move or copy, just as assignment
+```rust
+fn main() {
+    let s = String::from("hello");  // s comes into scope
+
+    takes_ownership(s);             // s's value moves into the function...
+                                    // ... and so is no longer valid here
+
+    let x = 5;                      // x comes into scope
+
+    makes_copy(x);                  // x would move into the function,
+                                    // but i32 is Copy, so it's okay to still
+                                    // use x afterward
+
+} // Here, x goes out of scope, then s. But because s's value was moved, nothing
+  // special happens.
+
+fn takes_ownership(some_string: String) { // some_string comes into scope
+    println!("{}", some_string);
+} // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+fn makes_copy(some_integer: i32) { // some_integer comes into scope
+    println!("{}", some_integer);
+} // Here, some_integer goes out of scope. Nothing special happens.
+```
+When `s` is passed to `takes_ownership()` the function now has ownership of `s` and when the function finished executing, that memory is freed. `s` is no longer available to use
+
+### References and Borrowing
+A *reference* is like a pointer in thats its an address we can follow to access data stored at that saddress that is owned by some other variable.
+
+Unlike a pointer, a reference is guaranteed to point to a valid value of a particular type
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+
+    let len = calculate_length(&s1);
+
+    println!("The length of '{}' is {}.", s1, len);
+}
+
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+```
+
+`&s1` sends a references, since it is a just a reference, `calculate_length()` does not take ownership of the variable, and can not release the memory
+
+By default, references are immutable, so a compilation error will occur.
+
+### Mutable References
+```rust
+fn main() {
+    let mut s = String::from("Hello!");
+    change(&mut s);
+}
+fn change(some_string: &mut String) {
+    some_string.push_str(", World!");
+}
+```
+Mutable references have one big restriction: You can have only one mutable reference to a particular piece of data at a time
+
+A references scope starts from where it is introduced and continues through the last time that reference is used.
+
+### Slice Type
+A string slice is a reference to part of a String
+```rust
+let s = String::from("Hello world");
+
+let hello = &s[0..5];
+let world = &s[6..11];
+```
+`hello` is a reference to a portion of the String.
 ## Chapter 5 - Using Structs to Structure Related Data
 
 ## Chapter 6 - Enums and Pattern Matching
