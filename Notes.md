@@ -441,7 +441,67 @@ let hello = &s[0..5];
 let world = &s[6..11];
 ```
 `hello` is a reference to a portion of the String.
+
 ## Chapter 5 - Using Structs to Structure Related Data
+A `struct` or `structure` is a custom data type that lets you package together and name multiple related values that make up a meaningful group.
+
+A `struct` is like an objects data attributes.
+
+### Defining and Instantiating Structs
+In a struct, you will name each piece of data so its clear what the values mean
+
+```rust
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64
+}
+```
+`active`, `username`, ... etc are known as fields
+
+To use a struct, you create an instance of that struct by specifying concrete values for each field.
+```rust
+fn main() {
+    let user = User {
+        email: String::from("someone@wxample.com"),
+        username: String::from("Someusername"),
+        active: true,
+        sign_in_count: 1
+    };
+}
+```
+To access a field: `user.username` if an instance of the struct is mutable, you can change the value of the field
+```rust
+fn main() {
+    let user = User {
+        email: String::from("someone@wxample.com"),
+        username: String::from("Someusername"),
+        active: true,
+        sign_in_count: 1
+    };
+    user.email = String::from("NewEmail@hello.com");
+}
+```
+
+To create a struct instance with information for another instance you do the following:
+```rust
+fn main() {
+    let user1 = User {
+        email: String::from("someone@wxample.com"),
+        username: String::from("Someusername"),
+        active: true,
+        sign_in_count: 1
+    };
+    let user2 = User {
+        email: String::from("user2email@mc.com");
+        ..user1
+    };
+}
+```
+### An Example Program Using Structs
+Files in ./5-Using-Structs/rectangles
+### Method Syntax
 
 ## Chapter 6 - Enums and Pattern Matching
 
