@@ -19,7 +19,7 @@ fn main() {
 
         let user_choice: usize = match user_choice.trim().parse() {
             Ok(val) => {
-                if val >= 3 {
+                if val > 3 {
                     println!("ERROR: Please enter 1, 2, or 3");
                     continue;
                 } 
@@ -31,7 +31,7 @@ fn main() {
             }
         };
 
-        let mut user_choice = String::from(CHOICES[user_choice-1]);
+        let user_choice = String::from(CHOICES[user_choice-1]);
 
         println!("The PC choose {}! and you choose {}!", pc_choice, user_choice);
 
@@ -56,11 +56,11 @@ fn main() {
                 println!("You Lose!");
             }
         }
-
+        let mut user_choice = String::default();
         println!("Play again? Enter 'y'");
         io::stdin().read_line(&mut user_choice).expect("Error Reading Input");
-        println!("{}",(user_choice.trim().to_lowercase().eq(&String::from("yes"))) );
-        if !user_choice.trim().to_lowercase().eq(&String::from("yes")) {
+        
+        if user_choice.as_bytes()[0] as char != 'y' {
             break;
         }
 
