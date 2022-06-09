@@ -52,7 +52,7 @@ let y = y + 1;
 | Length | Signed | Unsigned |
 | ------ | ------ | -------- |
 | 8 bit | `i8` | `u8` |
-| 16 bit | `i16 | `u16` |
+| 16 bit | `i16` | `u16` |
 | 32 bit | `i32` | `u32` |
 | 64 bit | `i64` | `u64` |
 | 128 bit | `i128` | `u128` |
@@ -501,8 +501,50 @@ fn main() {
 ```
 ### An Example Program Using Structs
 Files in ./5-Using-Structs/rectangles
-### Method Syntax
 
+### Method Syntax
+Methods are similar to functions, but are defined within the context of a struct (or enum, or a trait object), and their first parameter is self, which represents the instance of the struct the method is being called on
+
+```rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32
+}
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+```
+
+To define the method within the context of `Rectangle`, use an `impl` (implementation) block
+
+Everything within the `impl` block will be associated with the type
+
+Note: that `&self` is not `self` because the method is only borrowing the reference
+
+To change the instance of the struct in that method use `&mut self`
+
+#### Associated Functions
+All functions defined within the `impl` block are called *associated functions* b/c they're associated with the type named after the `impl`
+
+Defining associated functions without the keyword `self` is possible, since a function may not need read access to the instance. An example of this is: `String::from`
+
+Associated functions that aren't methods are often used for constructors that will return a new instance of the struct
+
+```rust
+impl Rectangle {
+    fn square(size: u32) -> Rectangle {
+        Rectangle {
+            width: size,
+            heigth: size
+        }
+    }
+}
+```
+
+To call this function, you use the `::` syntax with the struct name: `let sq = Rectangle::square(3)`
 ## Chapter 6 - Enums and Pattern Matching
 
 ## Chapter 7 - 
