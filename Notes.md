@@ -545,7 +545,186 @@ impl Rectangle {
 ```
 
 To call this function, you use the `::` syntax with the struct name: `let sq = Rectangle::square(3)`
+
 ## Chapter 6 - Enums and Pattern Matching
+### Defning an Enum
+Enums are a way of defining custom data types in a differenet way than structs.
+
+An example: Looking at the two major standards for IP addresses, since there are only two we can *enumerate* through the variants
+
+An IP address can be version four or six but not both. An enum value can obly be one of its variants
+
+```rust
+enum IpAddrKind {
+    V4,
+    V6
+}
+```
+
+#### Enum Values
+Creating instances of each of the two variants
+```rust
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+```
+
+At the momemnt we dont have a way to store the actual IP address *data*, we only know the kind.
+
+We can use structs
+```rust
+enum IpAddrKind {
+    V4,
+    V6
+}
+
+struct IpAddr {
+    kind: IpAddrKind,
+    address: String
+}
+
+let home = IpAddr {
+    kind: IpAddrKind::V4,
+    address: String::from("127.0.0.1")
+};
+let loopback = IpAddr {
+    kind: IpAddrKind::V6,
+    address: String::from("::1")
+};
+```
+
+We can put data directly into each enum variant
+
+```rust
+enum IpAddr {
+    V4(String),
+    V6(String)
+}
+let home = IpAddr::V4(String::from("127.0.0.1"));
+let loopback = IpAddr::V6(String::from("::1"));
+```
+
+The name of each enum variant that we define also becomes a function that constructs an instance of the enum.
+
+`IpAddr::V4()` is a function call that takes a string argument and returns an instance of the IpAddr type.
+
+Variants can have different types and amounts of associated data.
+
+```rust
+enum IpAddr {
+    V4(u8, u8, u8, u8),
+    V6(String)
+}
+let home = IpAddr::V4(127, 0, 0, 1);
+```
+
+You can put any kind of data inside an enum variant
+
+Another example
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32)
+}
+```
+
+* `Quit` has not data associated with it all
+* `Move` has named fields like a struct
+* `Write` includes a single String
+* `ChangeColor` incudes three i32 values
+
+You are able to define methods on structs using impl
+```rust
+impl Message {
+    fn call(&self) {
+        // Method
+    }
+}
+let m = Message::Write(String::from("Hello"));
+m.call();
+```
+
+#### The Opetion Enum and Its Advantages Over Null Values
+The `Option` type encodes the very common scenario in which a value could be something or it could be nothing
+
+Rust does not have the value `null` but has an enum that can enccode the concept of a value being present or absent, `Option<T>`
+
+```rust
+let some_number = Some(5);
+let some_string = Some("A string");
+
+let absent_number: Option<i32> = None;
+```
+
+* `some_number` has type `Option<i32>`
+* `some_string` has type `Option<&str>`
+* The rust compiler requires annotations to a variable that holds the None value
+
+Only when using `Option<T>` do you have to worry about not having a value for a variable
+
+The following would throw an error:
+```rust
+let x = Some(5);
+let y = 6;
+x + y
+```
+
+### The match Control Flow Construct
+`match` allows you to compare a value against a series of patterns and then execute code based on which pattern matches
+
+Patterns can be made up of literal values, wildcards, and many other things
+
+```rust
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+```
+
+#### Matching with Option<T>
+```rust
+fn plus_one(x: Option<i32>) -> Option<i32> {
+    match x {
+        None => None,
+        Some(i) => Some(i + 1)
+    }
+}
+let five = Some(5);
+let six = plus_one(five);
+let none = plus_one(None);
+```
+
+### Concise Control Flow with if let
+The `if let` syntax lets you combine `if` and `let` to handle values that match one pattern while ignoring the rest
+
+Without `if let`
+```rust
+let config_max = Some(3u8);
+match config_max {
+    Some(max) => println!("The maximum is configured to be {}", max),
+    _ => ()
+}
+```
+
+With `if let`
+```rust
+let config_max = Some(3u8);
+if let Some(max) = config_max {
+    println!("The maximum is configured to be {}", max);
+}
+```
 
 ## Chapter 7 - 
 
