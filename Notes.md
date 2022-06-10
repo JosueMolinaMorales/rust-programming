@@ -725,8 +725,30 @@ if let Some(max) = config_max {
     println!("The maximum is configured to be {}", max);
 }
 ```
+`if let` takes a pattern and an expression separated by an equal sign. It works the same way as a match, where the expression is given to the match and the pattern is its first arm
 
-## Chapter 7 - 
+The code in the `if let` block isnt run if the value doesn't match the pattern
+
+You can include an `else` with an `if let`. The block of code that goes with the `lese` is the same as the block of code that would go with the `_` case in the `match` expression
+
+```rust
+let mut count = 0;
+match coin {
+    Coin::Quarter(state) => println!("State quarter from {:?}!", state),
+    _ => count += 1
+}
+```
+using `if let else`
+```rust
+let mut count = 0;
+if let Coin::Quarter(state) = coin {
+    println!("State quarter from {:?}", state);
+} else {
+    count += 1;
+}
+```
+
+## Chapter 7 - Managing Growing Projects with Packages, Crates, and Modules
 
 ## Chapter 8 - Common Collections
 
