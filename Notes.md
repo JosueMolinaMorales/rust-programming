@@ -1089,6 +1089,54 @@ The rules the compiler follows to know what files to look in for modules' code:
     * *src/front_of_house/hosting/mod.rs*
 
 ## Chapter 8 - Common Collections
+* A *vector* allows you to store a variable number of values next to each other
+* A *string* is a collection of characters
+* A *hash map* allows you to associate a value with a particular key
+
+### Sotring Lists of Values with Vectors
+Vectors can only store values of the same type. 
+
+Creating a New Vector
+```rust
+let v: Vec<i32> = Vec::new();
+```
+Rust provides the `vec!` macro which can create a new vector that holds the values you give it
+
+```rust
+let v = vec![1, 2, 3];
+```
+
+Adding to a vector:
+```rust
+let mut v = Vec::new();
+v.push(5);
+v.push(6);
+v.push(7);
+```
+
+Like any other struct, a vector is freed when it goes out of scope
+```rust
+{
+    let v = vec![1, 2, 3, 4];
+    // do stuff with v
+} // <- v goes out of scope and is freed
+```
+
+#### Reading Elements of Vectors
+Two ways to reference a value stored in a vector:
+* indexing 
+* using the `get` method 
+
+```rust
+let v = vec![1, 2, 3, 4];
+let third: &i32 = &v[2];
+println!("The third element is {}", third);
+
+match v.get(2) {
+    Some(third) => println!("The third element is {}", third),
+    None => println!("There is no third element.")
+}
+```
 
 ## Chapter 9 - Error Handling
 
