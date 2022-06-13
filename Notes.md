@@ -1,4 +1,78 @@
 # Rust Programming Language Notes
+## Table of Contents
+- [Rust Programming Language Notes](#rust-programming-language-notes)
+  - [Table of Contents](#table-of-contents)
+  - [Chapter 1](#chapter-1)
+  - [Chapter 2](#chapter-2)
+  - [Chapter 3 - Types and Variables](#chapter-3---types-and-variables)
+    - [Constants](#constants)
+    - [Shadowing](#shadowing)
+    - [Scalar Types](#scalar-types)
+      - [Integer Types](#integer-types)
+      - [Number literals](#number-literals)
+      - [Floating Point Types](#floating-point-types)
+    - [Compound Types](#compound-types)
+      - [Tuble Type](#tuble-type)
+      - [Array Type](#array-type)
+        - [Accessing array elements](#accessing-array-elements)
+    - [Functions](#functions)
+      - [Functions with Return Values](#functions-with-return-values)
+    - [Comments](#comments)
+    - [Control Flow](#control-flow)
+      - [If expressions](#if-expressions)
+    - [Loops](#loops)
+      - [Loop](#loop)
+      - [For loops](#for-loops)
+  - [Chapter 4 - Understanding Ownership](#chapter-4---understanding-ownership)
+    - [What is Ownership?](#what-is-ownership)
+      - [Ownership Rules](#ownership-rules)
+      - [Variable Scope](#variable-scope)
+      - [The String Type](#the-string-type)
+      - [Ownership and Functions](#ownership-and-functions)
+    - [References and Borrowing](#references-and-borrowing)
+    - [Mutable References](#mutable-references)
+    - [Slice Type](#slice-type)
+  - [Chapter 5 - Using Structs to Structure Related Data](#chapter-5---using-structs-to-structure-related-data)
+    - [Defining and Instantiating Structs](#defining-and-instantiating-structs)
+    - [An Example Program Using Structs](#an-example-program-using-structs)
+    - [Method Syntax](#method-syntax)
+      - [Associated Functions](#associated-functions)
+  - [Chapter 6 - Enums and Pattern Matching](#chapter-6---enums-and-pattern-matching)
+    - [Defning an Enum](#defning-an-enum)
+      - [Enum Values](#enum-values)
+      - [The Opetion Enum and Its Advantages Over Null Values](#the-opetion-enum-and-its-advantages-over-null-values)
+    - [The match Control Flow Construct](#the-match-control-flow-construct)
+      - [Matching with Option](#matching-with-option)
+    - [Concise Control Flow with if let](#concise-control-flow-with-if-let)
+  - [Chapter 7 - Managing Growing Projects with Packages, Crates, and Modules](#chapter-7---managing-growing-projects-with-packages-crates-and-modules)
+    - [Packages and Crates](#packages-and-crates)
+    - [Defining Modules to Control Scope and Privacy](#defining-modules-to-control-scope-and-privacy)
+      - [Modules Quick Reference](#modules-quick-reference)
+      - [Defining a module](#defining-a-module)
+    - [Paths for Referring to an item in the Module Tree](#paths-for-referring-to-an-item-in-the-module-tree)
+    - [Exposing Paths with the pub Keyword](#exposing-paths-with-the-pub-keyword)
+    - [Starting Relative Paths with super](#starting-relative-paths-with-super)
+    - [Making Structs and Enums Public](#making-structs-and-enums-public)
+    - [Bringing Paths into Scope with the use Keyword](#bringing-paths-into-scope-with-the-use-keyword)
+      - [Providing New Names with the as Keyword](#providing-new-names-with-the-as-keyword)
+      - [Using External Packages](#using-external-packages)
+      - [The Glob Operator](#the-glob-operator)
+    - [Separating Modules into Different Files](#separating-modules-into-different-files)
+  - [Chapter 8 - Common Collections](#chapter-8---common-collections)
+    - [Sotring Lists of Values with Vectors](#sotring-lists-of-values-with-vectors)
+      - [Reading Elements of Vectors](#reading-elements-of-vectors)
+      - [Iterating over the Values in a Vector](#iterating-over-the-values-in-a-vector)
+      - [Using an Enum to Store Multiple Types](#using-an-enum-to-store-multiple-types)
+    - [Sotring UTF-8 Encoded Text with Strings](#sotring-utf-8-encoded-text-with-strings)
+  - [Chapter 9 - Error Handling](#chapter-9---error-handling)
+  - [Chapter 10 - Generic Types, Traits, and Lifetimes](#chapter-10---generic-types-traits-and-lifetimes)
+  - [Chapter 11 - Writing Automated Tests](#chapter-11---writing-automated-tests)
+  - [Chapter 13 - Functional Language Features: Iterators and Closures](#chapter-13---functional-language-features-iterators-and-closures)
+  - [Chapter 15 - Smart Pointers](#chapter-15---smart-pointers)
+  - [Chapter 16 - Fearless Concurrency](#chapter-16---fearless-concurrency)
+  - [Chapter 17 - Object Oriented Programming Features of Rust](#chapter-17---object-oriented-programming-features-of-rust)
+  - [Chapter 18 - Patterns and Matching](#chapter-18---patterns-and-matching)
+  - [Chapter 19 - Advanced Features](#chapter-19---advanced-features)
 
 ## Chapter 1
 
@@ -18,7 +92,7 @@ println!("The value of x is: {}", x); //ERROR
 const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;
 ```
 
-### Constants:
+### Constants
 * You are not allowed to use 'mut' with constants
 * Constants are always immutable
 * Declare constants using 'const' instead of 'let'
@@ -1137,6 +1211,59 @@ match v.get(2) {
     None => println!("There is no third element.")
 }
 ```
+Indexing, or using & and [] can lead to the programming crashing when there is an out of bounds error
+
+Using `get` would would return `Option<&T>` where you can use
+```rust
+match vec.get(i) {
+    Some(T) => // Do something
+    None => // DO SOmething
+}
+```
+
+When the program has a valid reference, the borrow checker enforces the ownership and borrowing rules to ensure this reference and any other references to the contents of the vector remain valid
+
+```rust
+let mut v = vec![1, 2, 3, 4, 5];
+let first = &vec[0];
+v.push(6);
+println!("{}", first);
+```
+The above code would cause a compilation error
+
+#### Iterating over the Values in a Vector
+Immutable references
+```rust
+let v = vec![100, 32, 57];
+for i in &v {
+    println!("{}", i);
+}
+```
+Mutable References
+```rust
+let v = vec![100, 32, 57];
+for i in &mut v {
+    *i += 50;
+}
+```
+To change the value that the mutable references refers to we have to use the `*` dereference operator to get to the value in `i` before we can use the `+=` operator
+
+#### Using an Enum to Store Multiple Types
+You can use enums to store multiple types in vectors since an enum is one type and vectors can only hold one type
+```rust
+enum SpreadsheetCell {
+    Int(i32),
+    Float(f64),
+    Text(String)
+}
+let row = vec![
+    SpreadsheetCell::Int(3),
+    SpreadsheetCell::Float(3.4);
+    SpreadsheetCell::Text(String::from("blue"))
+];
+```
+
+### Sotring UTF-8 Encoded Text with Strings
 
 ## Chapter 9 - Error Handling
 
