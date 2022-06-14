@@ -63,7 +63,10 @@
       - [Reading Elements of Vectors](#reading-elements-of-vectors)
       - [Iterating over the Values in a Vector](#iterating-over-the-values-in-a-vector)
       - [Using an Enum to Store Multiple Types](#using-an-enum-to-store-multiple-types)
-    - [Sotring UTF-8 Encoded Text with Strings](#sotring-utf-8-encoded-text-with-strings)
+    - [Storing UTF-8 Encoded Text with Strings](#storing-utf-8-encoded-text-with-strings)
+      - [What is a String?](#what-is-a-string)
+      - [Creating a New String](#creating-a-new-string)
+      - [Updating a string](#updating-a-string)
   - [Chapter 9 - Error Handling](#chapter-9---error-handling)
   - [Chapter 10 - Generic Types, Traits, and Lifetimes](#chapter-10---generic-types-traits-and-lifetimes)
   - [Chapter 11 - Writing Automated Tests](#chapter-11---writing-automated-tests)
@@ -1263,7 +1266,33 @@ let row = vec![
 ];
 ```
 
-### Sotring UTF-8 Encoded Text with Strings
+### Storing UTF-8 Encoded Text with Strings
+Three reasons why beninners get stuck on string:
+* Rust's propensity for exposing possible errors
+* String being a more complicated datas tructure
+* UTF-8
+
+#### What is a String?
+Rust has one string type in the core language, which is the string slice `str` that is usually seen in its borrowed form `&str`. String literals are stored in the program's binary and are therefore string slices
+
+#### Creating a New String
+`new` function creates a string
+```rust
+let mut s = String::new();
+```
+This creates a new empty string called `s`. Often we have initial data. for that we can use the `to_string` method
+
+```rust
+let data = "initial contents";
+let s = data.to_string();
+
+// the method also works on a literal directly:
+let s = "initial contents".to_string();
+```
+We can also use the function `String::from` to create a `String` from a string literal
+
+#### Updating a string
+A `String` can grow in size and its contents can change. you can use the `+` 
 
 ## Chapter 9 - Error Handling
 
