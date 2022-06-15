@@ -1292,7 +1292,140 @@ let s = "initial contents".to_string();
 We can also use the function `String::from` to create a `String` from a string literal
 
 #### Updating a string
-A `String` can grow in size and its contents can change. you can use the `+` 
+A `String` can grow in size and its contents can change. you can use the `+` or the `format!` macro to concatenate `String` values
+
+We can grow a `String` using the `push_str` method
+```rust
+let mut s = String::from("foo");
+s.push_str("bar");
+```
+`push` method takes a single chracter as a parameter and adds it to the `String`
+```rust
+let mut s = String::from("lo");
+s.push('l');
+```
+
+Using the `+` operator
+```rust
+let s1 = String::from("Hello, ");
+let s2 = String::from("World!");
+let s3 = s1 + &s2; // Note s1 has been moved here and can no longer be used
+```
+The reason `s1` can no longer be used and `&s2` was used is because of signature of the method that called when the `+` is used.
+```rust
+fn add(self, s: &str) -> String {}
+```
+So since `let s3 = s1 + &s2` looks like it will copy both strings and create a new one, this statement actually takes ownership of `s1`, appends a copy of the contents of `s2` and then returns ownership of the result
+
+For more complicated string combining, we can use `format!` macro:
+```rust
+let s1 = String::from("tic");
+let s2 = String::from("tac");
+let s3 = String::from("toe");
+let s = format!("{}-{}-{}", s1, s2, s3);
+```
+`format` uses references to the string so it does not take ownership
+
+### Indexing into String
+If you try to access parts of a string using indexing syntax in Rust, you'll get an error
+```rust
+let s1 = String::from("Hello");
+let h = s1[0];
+```
+
+#### How Rust stores Strings
+A string is a wrapper over a `Vec<u8>`
+```rust
+let hello = String::from("Hola");
+```
+`Hola` uses 4 to be stored Using UTF-8
+```rust
+let hello = String::from("Здравствуйте");
+```
+You would think `Здравствуйте` uses 12 bytes but Rust uses 24 bytes using UTF-8 to store this string. Indexing this thinking its length is 12 would not be good
+
+If you really need to use indices to create string slices, you use a string slice
+```rust
+let hello = "Здравствуйте";
+let s = &hello[0..4];
+```
+`s` will store the first 4 bytes of `hello`
+
+### Methods for Iterating Over String
+The best way to operate on pieces of string is to be explicit about whether you want characters or bytes
+
+For individual Unicode scalar values, use the `chars` method.
+`Code in ./8-Common-Collections/collection-practice`
+
+### Stroring Keys with Associated Values in Hash Maps
+The type `HashMap<K, V>` stores a mapping of keys of type `K` to values of type `V` using a *hashing function*, which determines how tit places these keys and values into memory
+
+#### Creating a Hash Map
+One way is to create an empty hash map and adding elements with `insert`
+```rust
+use std::collections::HashMap;
+let mut scores = HashMap::new();
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+```
+Like vectors, hash maps must have all of the keys be the same type and all of the values be the same type
+
+Another way of constructing a hash map is by using interators and the `collect` method on a vector of tuples, where each tuple consists of a key and its value
+```rust
+use std::collections:HashMap;
+let teams = vec![String::from("Blue"), String::from("Yellow")];
+let initial_scores = vec![10, 50];
+let mut scores: HashMap<_, _> = teams.into_iter().zip(initial_scores.into_iter()).collect();
+```
+The `collect` method gathers data into a number of collection types, including `HashMap`. `zip` method combines two serpate vectors and creates an interator of tuples
+
+The type annotation `HashMap<_, _>` is needed here because it's possible to `collect` into many different data structures and Rust doesn't know which you want unless you specify
+
+#### Hash Maps and Ownership
+For types that implement the `copy` trait like `i32` the values are copied into the hash map. For owned values like `String`, the values will be moved and the has map will be the owner of those values
+
+If we insert references to values into the hash map, the values won't be moved into the hash map.
+The values that the references point to must be valid for at least as long as the hash map is valid
+
+#### Accessing Values in a Hash Map
+We can get a value out of a hash map by providing its key to the `get` method
+```rust
+use std::collections::HashMap;
+let mut scores = HashMap::new();
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+let team_name = String::from("Blue");
+let score = scores.get(&team_name);
+```
+`get` returns an `Option<&v>` if there is no value for that key in the hash amp then `get` will return `None`
+
+#### Insert a value if the key has no value 
+It's common to check whether a particular key has a value and, if it doesn't, insert a value for it.
+
+`entry` takes the key you want to check as a paramater. The return value of the `entry` method is enum called `Entry` that represents a value that might or might not exist
+```rust
+use std::collections::HashMap;
+let mut scores = HashMap::new();
+scores.insert(String::from("Blue"), 10);
+scores.entry(String::from("Yellow")).or_insert(50);
+scores.entry(String::from("Blue")).or_insert(50);
+```
+The `or_insert` method on the `Entry` is defined to return a mutable reference to the value for the corresponding `Entry` key if that key exists, and if not, inserts the parameter4 as the new value for this key and returns a mutable reference to the new value
+
+#### Updating a Value based on the Old Value
+Another common use case for hash maps is to look up a key's value and then update it based on the old Value
+```rust
+use std::collections::HashMap;
+let text = "hello world wonderful world!";
+let mut map = HashMap::new();
+for word in text.split_whitespace() {
+    let count = map.entry(word).or_insert(0);
+    *count += 1;
+}
+```
+
+#### Hashing functions
+By default, Hash Map uses a hashing function called *SlipHash* that can provide resistance to Denial of Service attacked involving hash tables
 
 ## Chapter 9 - Error Handling
 
