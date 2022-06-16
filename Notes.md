@@ -1428,7 +1428,134 @@ for word in text.split_whitespace() {
 By default, Hash Map uses a hashing function called *SlipHash* that can provide resistance to Denial of Service attacked involving hash tables
 
 ## Chapter 9 - Error Handling
+Rust groups errors into two major categories: *recoverable* and *unrecoverable* errors
+* Recoverable errors are things like *file not found* error, we most likely just want to report the problem to the user
+* Unrecoverable errors are always symtoms of bugs. 
+Rust doesnt have exceptions. Instead, it has the type `Result<T, E>` for recoverable errors and the `panic!` macro that stops  execution when the program encounters an unrecoverable error.
 
+### Unrecoverable Errors with `panic!`
+When the `panic!` macro executes, your program will print a failure message, unwind and clean up the stack, and then quit.
+
+By default, when a panic occurs, the program starts *unwinding*, which means Rust walks back up the stack and cleans up the data from each function it encounters. This takes a lot of work. Rust allows you to choose the alternative of immediately *aborting*, which ends the program without cleaning up. Memory that the program was using will then need to be cleaned up by the operating system. 
+
+#### Using a `panic!` Backtrace
+```rust
+fn main() {
+    let v = vec![1, 2, 3];
+    v[99];
+}
+```
+This code attempts to acces an index in vector beyond the range of valid indexes. Rust will panic. 
+
+We can set the `RUST_BACKTRACE` environment variable to get a backtrace of exectly what happened to cause the error. 
+
+### Recovering Errors with `Rusult`
+Most errors aren't serious enought to require the program to stop entirely.
+
+The `Result` enum is defined as having two variants, `Ok`and `Err`:
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+```
+The `T` and `E` are generic type parameters. `T` represents the type of the value that will be returned in a sucess case within the `Ok` variant, and `E` represents the type of the error that will be returned in a failure case
+
+```rust
+use std::fs::File;
+
+fn main() {
+    let f = File::open("hello.txt");
+}
+```
+
+#### Matching on Different Errors
+If we want to take different actions for different failure reasons
+
+The type of the value that `File::open` returns inside the `Err` variant is `io::Error`, which is a struct. This struct has a method `kind` that we can call to get an `io::ErrorKind` value. 
+
+Here's another way to write the same logic but using closues and the `unwrap_or_else` method:
+```rust 
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    let f = File::open("hello.txt").unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            File::create("hello.txt").unwrap_or_else(|error| {
+                panic!("Problem creating the file: {:?}", error);
+            })
+        } else {
+            panic!("Problem opening the file: {:?}", error);
+        }
+    });
+}
+```
+
+#### Shortcuts for Panic on Error: unwrap and expect
+The `unwrap` method is a shortcut method implemented just like the `match` expression. If the `Result` value is the `Ok` variant, `unwrap` will return the value inside the `Ok`. If the `Result` is the `Err` variant, `unwrap` will call the `panic!` macro for us
+
+```rust
+use std::fs::File;
+fn main() {
+    let f = File::open("hello.txt").unwrap();
+}
+```
+Similarly, the `expect` method lets us also choose the `panic!` error message. Using `expect` instead of `unwrap` and providing good error messages can convey your intent 
+```rust
+use std::fs::File;
+fn main() {
+    let f = File::open("hello.txt").expect("Failed to open hello.txt");
+}
+```
+
+#### Propagating Errors
+When a function's implemetaion calls something that might fail, the function can handle the error or it can return the error to the calling code.
+```rust
+use std::fs::File;
+use std::io::{ self, Read };
+fn read_username_from_file() -> Result<string, io::Error> {
+    let f = File::open("Hello.txt");
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e)
+    };
+    let mut s = String::new();
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e)
+    }
+}
+```
+
+#### A Shortcut for Propagating Errors: The ? Operator
+The pattern of propagating errors is so common in Rust that Rust provides the question mark `?`
+```rust
+use std::fs::File;
+use std::io::{ self, Read };
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut f = File::open("hello.txt")?;
+    let mut s = String::new();
+    f.read_to_string(&mut s)?;
+    Ok(s)
+}
+```
+The `?` placed after a `Result` value is defined to work in almost the same wasy as the `match` expressions.
+
+Error values that have the `?` operator called on them go through the `from` function, defined in the `From` trait in the standard library
+
+We can chain methods called immediately after the `?`
+```rust
+use std::fs::File;
+use std::io::{ self, Read };
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut s = String::new();
+
+    File::open("hello.txt")?.read_to_string(&mut s)?;
+
+    Ok(s)
+}
+```
 ## Chapter 10 - Generic Types, Traits, and Lifetimes
 
 ## Chapter 11 - Writing Automated Tests
