@@ -1557,6 +1557,17 @@ fn read_username_from_file() -> Result<String, io::Error> {
 }
 ```
 ## Chapter 10 - Generic Types, Traits, and Lifetimes
+*generics*: abstract stand-ins for concrete types or other properties
+
+*lifetimes*: a variety of generics that give the compiler information about how references relate to each other
+
+#### Removing Duplication by Extracting a Function
+
+### Generic Data Types
+
+### Traits: Defining Shared Behavior
+
+### Validating References with Lifetimes
 
 ## Chapter 11 - Writing Automated Tests
 
