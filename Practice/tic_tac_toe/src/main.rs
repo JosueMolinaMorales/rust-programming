@@ -46,7 +46,7 @@ fn main() {
     let mut curr_player = 1;
 
     // Loop
-    loop {
+    'outer: loop {
         ttt_table.print_table();
 
         if curr_player == 1 {
@@ -65,6 +65,14 @@ fn main() {
                         println!("Please enter a number between 1-9");
                     }
                     ttt_table.add_choice(curr_choice, player_choice-1);
+                    if ttt_table.check_for_winner(curr_choice) {
+                        println!("Player {} wins!" , curr_player);
+                        break 'outer;
+                    }
+                    if ttt_table.check_for_draw() {
+                        println!("Its a draw!");
+                        break 'outer;
+                    }
                     break;
                 },
                 Err(_) => {

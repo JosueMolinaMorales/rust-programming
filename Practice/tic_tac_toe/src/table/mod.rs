@@ -33,9 +33,12 @@ impl Table {
     /**
      * 
      */
-    pub fn add_choice(&mut self, choice: Choice, position: usize) {
+    pub fn add_choice(&mut self, choice: Choice, position: usize) -> bool {
         self.validate_position(position);
         // Add validation
+        if self.table[position] != 'X' || self.table[position] != 'O' {
+            return false;
+        }
         match choice {
             Choice::X => {
                 self.table.remove(position);
@@ -46,6 +49,7 @@ impl Table {
                 self.table.insert(position, 'O');
             }
         }
+        true
     }
 
     pub fn print_table(&self) {
@@ -91,6 +95,15 @@ impl Table {
         }
 
         false
+    }
+
+    pub fn check_for_draw(&self) -> bool {
+        for ch in &self.table {
+            if *ch != 'X' || *ch != 'O' {
+                return false
+            }
+        }
+        true
     }
 
     /**
