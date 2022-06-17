@@ -36,7 +36,7 @@ impl Table {
     pub fn add_choice(&mut self, choice: Choice, position: usize) -> bool {
         self.validate_position(position);
         // Add validation
-        if self.table[position] != 'X' || self.table[position] != 'O' {
+        if self.table[position] == 'X' || self.table[position] == 'O' {
             return false;
         }
         match choice {
@@ -99,6 +99,7 @@ impl Table {
 
     pub fn check_for_draw(&self) -> bool {
         for ch in &self.table {
+            println!("{}", *ch);
             if *ch != 'X' || *ch != 'O' {
                 return false
             }

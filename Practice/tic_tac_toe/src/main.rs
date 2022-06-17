@@ -42,7 +42,7 @@ fn main() {
     println!("Player 2 you are {}", player_two);
 
     // Other Variables
-    let mut player_choice = String::new();
+    let mut player_choice;
     let mut curr_player = 1;
 
     // Loop
@@ -57,14 +57,18 @@ fn main() {
 
         loop {
             let curr_choice = if curr_player == 1 { player_one } else { player_two };
-
+            player_choice = String::new();
             match io::stdin().read_line(&mut player_choice) {
                 Ok(_) => {
                     let player_choice: usize = player_choice.trim().parse().unwrap();
                     if player_choice < 1 || player_choice > 9 {
                         println!("Please enter a number between 1-9");
+                        continue;
                     }
-                    ttt_table.add_choice(curr_choice, player_choice-1);
+                    if !ttt_table.add_choice(curr_choice, player_choice-1) {
+                        println!("This position is taken! Pick again!");
+                        continue;
+                    }
                     if ttt_table.check_for_winner(curr_choice) {
                         println!("Player {} wins!" , curr_player);
                         break 'outer;
@@ -77,14 +81,14 @@ fn main() {
                 },
                 Err(_) => {
                     println!("There was an error. Please try again");
-                    player_choice = String::new();
                     continue;
                 }
             };
             
         }
         curr_player = if curr_player == 1 { 2 } else { 1 }; 
-        player_choice = String::new();
     }
+
+    ttt_table.print_table();
     
 }
