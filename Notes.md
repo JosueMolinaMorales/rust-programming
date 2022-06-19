@@ -106,6 +106,7 @@
       - [Lifetime Annotation Syntax](#lifetime-annotation-syntax)
       - [Lifetime Annotations in Function Signatures](#lifetime-annotations-in-function-signatures)
       - [Thinking in Terms of Lifetimes](#thinking-in-terms-of-lifetimes)
+      - [Lifetime Annotations in Method Definitions](#lifetime-annotations-in-method-definitions)
   - [Chapter 11 - Writing Automated Tests](#chapter-11---writing-automated-tests)
   - [Chapter 13 - Functional Language Features: Iterators and Closures](#chapter-13---functional-language-features-iterators-and-closures)
   - [Chapter 15 - Smart Pointers](#chapter-15---smart-pointers)
@@ -1928,6 +1929,9 @@ fn longest<'a>(x: &str, y: &str) -> &'a str {
 The following function won't compile. Even though we've specified a lifetime parameter `'a` for the return type, this implementation will fail to compile because the return value lifetime is not related to the lifetime of the parameters at all. 
 
 The best fix would be to return an owned data type rather than a reference so the calling function is then responsible for cleaning up the value
+
+#### Lifetime Annotations in Method Definitions
+
 ## Chapter 11 - Writing Automated Tests
 
 ## Chapter 13 - Functional Language Features: Iterators and Closures
