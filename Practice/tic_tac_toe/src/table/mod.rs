@@ -99,8 +99,7 @@ impl Table {
 
     pub fn check_for_draw(&self) -> bool {
         for ch in &self.table {
-            println!("{}", *ch);
-            if *ch != 'X' || *ch != 'O' {
+            if *ch != 'X' && *ch != 'O' {
                 return false
             }
         }

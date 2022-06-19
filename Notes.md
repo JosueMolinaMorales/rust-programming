@@ -67,8 +67,39 @@
       - [What is a String?](#what-is-a-string)
       - [Creating a New String](#creating-a-new-string)
       - [Updating a string](#updating-a-string)
+    - [Indexing into String](#indexing-into-string)
+      - [How Rust stores Strings](#how-rust-stores-strings)
+    - [Methods for Iterating Over String](#methods-for-iterating-over-string)
+    - [Stroring Keys with Associated Values in Hash Maps](#stroring-keys-with-associated-values-in-hash-maps)
+      - [Creating a Hash Map](#creating-a-hash-map)
+      - [Hash Maps and Ownership](#hash-maps-and-ownership)
+      - [Accessing Values in a Hash Map](#accessing-values-in-a-hash-map)
+      - [Insert a value if the key has no value](#insert-a-value-if-the-key-has-no-value)
+      - [Updating a Value based on the Old Value](#updating-a-value-based-on-the-old-value)
+      - [Hashing functions](#hashing-functions)
   - [Chapter 9 - Error Handling](#chapter-9---error-handling)
+    - [Unrecoverable Errors with `panic!`](#unrecoverable-errors-with-panic)
+      - [Using a `panic!` Backtrace](#using-a-panic-backtrace)
+    - [Recovering Errors with `Rusult`](#recovering-errors-with-rusult)
+      - [Matching on Different Errors](#matching-on-different-errors)
+      - [Shortcuts for Panic on Error: unwrap and expect](#shortcuts-for-panic-on-error-unwrap-and-expect)
+      - [Propagating Errors](#propagating-errors)
+      - [A Shortcut for Propagating Errors: The ? Operator](#a-shortcut-for-propagating-errors-the--operator)
   - [Chapter 10 - Generic Types, Traits, and Lifetimes](#chapter-10---generic-types-traits-and-lifetimes)
+    - [Generic Data Types](#generic-data-types)
+      - [In Function Definitions](#in-function-definitions)
+      - [In Struct Definitions](#in-struct-definitions)
+      - [In Enum Definitions](#in-enum-definitions)
+      - [In Method Definitions](#in-method-definitions)
+    - [Traits: Defining Shared Behavior](#traits-defining-shared-behavior)
+      - [Defining a Trait](#defining-a-trait)
+      - [Implementing a Trait on a Type](#implementing-a-trait-on-a-type)
+      - [Default Implementations](#default-implementations)
+      - [Traits as Parameters](#traits-as-parameters)
+      - [Trait Bound Syntax](#trait-bound-syntax)
+      - [Specifying Multiple Trait Bounds with the + Syntax](#specifying-multiple-trait-bounds-with-the--syntax)
+      - [Returning Types that Implements Traits](#returning-types-that-implements-traits)
+    - [Validating References with Lifetimes](#validating-references-with-lifetimes)
   - [Chapter 11 - Writing Automated Tests](#chapter-11---writing-automated-tests)
   - [Chapter 13 - Functional Language Features: Iterators and Closures](#chapter-13---functional-language-features-iterators-and-closures)
   - [Chapter 15 - Smart Pointers](#chapter-15---smart-pointers)
@@ -1559,13 +1590,203 @@ fn read_username_from_file() -> Result<String, io::Error> {
 ## Chapter 10 - Generic Types, Traits, and Lifetimes
 *generics*: abstract stand-ins for concrete types or other properties
 
+*traits*: Define behavior in a generic way
+
 *lifetimes*: a variety of generics that give the compiler information about how references relate to each other
 
-#### Removing Duplication by Extracting a Function
-
 ### Generic Data Types
+#### In Function Definitions
+To parameterize the types in a new single function, we need to name the type parameter, just as we do for the value parameters. You can use any identifier as a type parameter name. 
+```rust
+fn largest<T>(list: &[T]) -> T {}
+```
+Example:
+```rust
+fn largest<T>(list: &[T]) -> T {
+    let mut largest = list[0];
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+```
+The above code will not compile. The follow error message is displayed:
+```sh
+Compiling chapter10 v0.1.0 (file:///projects/chapter10)
+error[E0369]: binary operation `>` cannot be applied to type `T`
+ --> src/main.rs:5:17
+  |
+5 |         if item > largest {
+  |            ---- ^ ------- T
+  |            |
+  |            T
+  |
+help: consider restricting type parameter `T`
+  |
+1 | fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> T {
+  |             ++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0369`.
+error: could not compile `chapter10` due to previous error
+```
+The error mentions `std::cmp::PartialOrd` which is a *trait*. This error states that this function will not work with all types of `T`. 
+
+To enable comparison, the standard library has the `std::cmp::PartialOrd` trait that you can implement on types
+
+#### In Struct Definitions
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
+}
+```
+
+#### In Enum Definitions
+```rust
+enum Option<T> {
+    Some(T),
+    None
+}
+```
+
+#### In Method Definitions
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Point<T> {
+    fn x(&self) -> &T {
+        &self.x
+    }
+}
+
+fn main() {
+    let p = Point { x: 5, y: 10 };
+    println!("p.x = {}", p.x());
+}
+```
+We can also specify constraints on generic types when defining methods on the type. Example:
+```rust
+impl Point<f32> {
+    fn distance_from_origin(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+}
+```
+This code means the type `Point<f32>` will have a `distance_from_origin` method, other instances of `Point<T>` where `T` is not of type `f32` will not have thid method defined
 
 ### Traits: Defining Shared Behavior
+A *trait* defines functionality a particular type has and can share with other types. 
+
+Traits are similar to *interfaces* in other languages
+
+#### Defining a Trait
+A types behavior consists of the methods we can call on that type. Different types share the same behavior if we can call the same methods on all of those types
+```rust
+pub trait Summary {
+    fn summarize(&self) -> String;
+}
+```
+Here we define a trait using the `trait` keyword and then the trait's name. Inside the curly bracket, we declare the method signatures that describe the behaviors of the types that implement this trait
+
+Each type implementing this trait must provide its own custom behavior for the body of the method
+
+#### Implementing a Trait on a Type
+```rust
+pub struct NewsArticle {
+    pub headline: String,
+    pub location: String,
+    pub author: String,
+    pub content: String
+}
+
+impl Summary for NewsArticle {
+    fn summarize(&self) -> {
+        format!("{}, by {}, ({})", self.headline, self.author, self.location)
+    }
+}
+
+pub struct Tweet {
+    pub username: String,
+    pub content: String
+}
+
+impl Summary for Tweet {
+    fn summarize(&self) -> String {
+        format!("{}: {}", self.username, self.content)
+    }
+}
+```
+
+#### Default Implementations
+Instead of requiring implemetations for all methods on every type, you can hav default default behaviors
+
+#### Traits as Parameters
+```rust
+pub fn notify(item: &impl Summary) {
+    println!("Breaking news! {}", item.summarize());
+}
+```
+This methods takes any type that implements the `Summary` trait
+
+#### Trait Bound Syntax
+The `impl Trait` syntax works but its syntax sugar for a longer form known as a trait bound:
+```rust
+pub fn notify<T: Summary>(item: &T) {
+    println!("Breaking news! {}", item.summarize());   
+}
+```
+
+#### Specifying Multiple Trait Bounds with the + Syntax
+If you need a type to implement multiple traits you can do the following:
+```rust
+pub fn notify(item: &(impl Summary + Display)) {}
+```
+
+Using too many traits can be a downside, you can use the `where` clause:
+```rust
+fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 {}
+```
+to
+```rust
+fn some_function<T, U>(t: &T, u: &U) -> i32 
+    where T: Display + Clone,
+          U: Clone + Debug
+{}
+```
+
+#### Returning Types that Implements Traits
+```rust
+fn returns_summarizable() -> impl Summary {
+    Tweet {
+        username: String::from("horse_ebooks"),
+        content: String::from(
+            ".."
+        )
+    }
+}
+```
 
 ### Validating References with Lifetimes
 

@@ -9,21 +9,21 @@ fn main() {
     // Print Welcome
     println!("Welcome to Tic-Tac-Toe!");
     // Player 1 Name
-    let mut input = String::new();
     let player_one: Choice;
 
     println!("Player 1 please enter your X or O: ");
     loop {
+        let mut input = String::new();
         match io::stdin().read_line(&mut input) {
             Ok(_) => {
                 let input = input.trim().to_ascii_uppercase();
-                if input == String::from("X") {
-                    player_one = Choice::X;
-                } else if input == String::from("O") {
-                    player_one = Choice::O;
-                } else {
-                    println!("Please enter either X or O");
-                    continue;
+                match input.as_str() {
+                    "X" => player_one = Choice::X,
+                    "O" => player_one = Choice::O,
+                    _ => {
+                        println!("Please enter either X or O");
+                        continue
+                    }
                 }
                 break;
             },
@@ -50,9 +50,9 @@ fn main() {
         ttt_table.print_table();
 
         if curr_player == 1 {
-            println!("Player one please enter your choice! (1-9)");
+            println!("Player one ({}) please enter your choice! (1-9)", player_one);
         } else if curr_player == 2 {
-            println!("Player two please enter your choice! (1-9)");
+            println!("Player two ({}) please enter your choice! (1-9)", player_two);
         }
 
         loop {
