@@ -1934,6 +1934,19 @@ The best fix would be to return an owned data type rather than a reference so th
 
 ## Chapter 11 - Writing Automated Tests
 
+## Chapter 12 
+Files can be found in `/12-Building-CLI-Program`
+
+#### Guidelines for splitting up main()
+
+* Split your program into a main.rs and a lib.rs and move your program's logic to lib.rs
+* main.rs should handle setting up configurations, calling a run function in lib.rs, and handling errors
+
+#### Returning Errors
+`Result<(), Box<dyn Error>>`, `Box<dyn Error>` is a trait object. It means the function will return a type that implements the Error trait
+
+The `dyn` keyword is short for dynamic
+
 ## Chapter 13 - Functional Language Features: Iterators and Closures
 
 ## Chapter 15 - Smart Pointers
