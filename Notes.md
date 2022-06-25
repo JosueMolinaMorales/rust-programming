@@ -1949,7 +1949,56 @@ The `dyn` keyword is short for dynamic
 
 ## Chapter 13 - Functional Language Features: Iterators and Closures
 
+### Closures: Anonymous Functions that can capture their environment
+Rust's closures are anonymous functions you can save in a variable or pass as arguments to other functions. You can create the closue in one place then call the closure to evaluate it in a different context.
+
+### Processing a Series of Items with Iterators
+An iterator is responsible for the logic of iterating over each item and determining when the sequences has finished.
+
+In Rust, iterators are *lazy* meaning they have no effect until you call methods that consume the iterator to use it up.
+
+```rust
+let v1 = vec![1, 2, 3];
+let v1_iter = v1.iter();
+
+for val in v1_iter {
+    println!("{}", val);
+}
+```
+
+#### The Iterator trait and the next method
+All iterators implement a trait named `Iterator` that is defined in the standard library.
+
+#### Iterator Adapators
+`Map`
+```rust
+let v1: Vec<i32> = vec![1,2,3];
+let v2: Vec<_> = v1.iter().map(|x| x+1).collect();
+```
+
+`Filter` takes a closure that takes each item from the iterator and returns a boolean. If the closure returns true, the value will be included in the iterator produced by filter.
+```rust
+let v1: Vec<i32> = vec![4, 1, 5, 12];
+let greater_than_four = v1.iter().filter(|x| x > 4).collect();
+```
+
 ## Chapter 15 - Smart Pointers
+A pointer is a general concept for a variable that contains an address in memory. This address refers to, or points at, some other data. The most common kind of pointer in Rust is a reference.
+
+Smart Pointers, are data structures that not only act like a pointer but also have additional metadata and capabilities. Smart pointers own the data they point to
+
+Smart pointers are implemented using structs and implement the `Deref` and `Drop` traits.
+
+`Deref` traits allows an instance of the smart pointer struct to behave like a references so you can write code that works with either references or smart pointers
+
+`Drop` trait allows you to customize the code that is run when an instance of the smart pointer goes out of scope.
+
+Common Smart pointers:
+* `Box<T>` for allocating values on the heap
+* `Rc<T>` a reference counting type that enables multiple ownership
+* `Ref<T>` and `RefMut<T>` accessed through `RefCell<T>` a type that enforces the borrowing rules at runtime instead of compile time
+
+
 
 ## Chapter 16 - Fearless Concurrency
 
